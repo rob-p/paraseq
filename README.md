@@ -40,6 +40,20 @@ can change while a job runs, with `set_threads`, `share(ways)` and
 scheduler can move threads between decompression and downstream work in
 response to measurement, rather than fixing the split before reading a byte.
 
+## Packaging changes
+
+For completeness, this republication also differs from the upstream branch in
+three ways that are not source code:
+
+- the package is renamed to `paraseq-temp` while the library target stays
+  `paraseq`, so imports are unchanged;
+- a `LICENSE` file carrying upstream's MIT license and copyright was added — the
+  upstream README links to one that is not in the repository;
+- the `htslib` example is gated with `required-features` and dropped from the
+  self-referencing dev-dependency, so tests and packaging do not require a
+  bindgen-capable htslib toolchain (see
+  [noamteyssier/paraseq#76](https://github.com/noamteyssier/paraseq/issues/76)).
+
 ## Using it
 
 The library is still named `paraseq`, so aliasing the dependency means no source
