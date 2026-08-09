@@ -1,11 +1,15 @@
 # paraseq-temp
 
-> ## This is a temporary republication. You probably want [`paraseq`](https://crates.io/crates/paraseq).
+> ## [`paraseq`](https://crates.io/crates/paraseq) is the official crate. You probably want that one.
 >
-> `paraseq-temp` exists for one reason: to let downstream crates depend on
-> unreleased `paraseq` work through crates.io instead of a `git` dependency,
-> because a `git` dependency cannot be published. **It will be yanked once
-> upstream releases 0.5.0.**
+> `paraseq-temp` exists for one reason: to let dependents rely on `paraseq`
+> features that are not yet merged upstream, through crates.io rather than a
+> `git` dependency, since a crate with a `git` dependency cannot itself be
+> published.
+>
+> **Prefer `paraseq` 0.5.0 once it is released.** We do not anticipate updating
+> this crate further unless another time-sensitive feature arrives before it
+> lands upstream.
 >
 > All credit for this code belongs to [Noam Teyssier](https://github.com/noamteyssier)
 > and the paraseq contributors. It is republished unmodified except for the
@@ -73,7 +77,8 @@ paraseq = "0.5"
 
 `0.5.0-pre.1` says what it is: a pre-release standing in for an eventual
 upstream 0.5.0. It deliberately does not occupy a plain `0.4.x` or `0.5.0`
-version, so it can never be mistaken for an upstream release.
+version, so it can never be mistaken for an upstream release, and so a
+dependency on `paraseq` 0.5 will not silently resolve to it.
 
 ## Please report issues upstream
 
