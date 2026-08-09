@@ -1,3 +1,76 @@
+# paraseq-temp
+
+> ## This is a temporary republication. You probably want [`paraseq`](https://crates.io/crates/paraseq).
+>
+> `paraseq-temp` exists for one reason: to let downstream crates depend on
+> unreleased `paraseq` work through crates.io instead of a `git` dependency,
+> because a `git` dependency cannot be published. **It will be yanked once
+> upstream releases 0.5.0.**
+>
+> All credit for this code belongs to [Noam Teyssier](https://github.com/noamteyssier)
+> and the paraseq contributors. It is republished unmodified except for the
+> single addition described below, under the original MIT license.
+
+## What this contains
+
+`paraseq-temp 0.5.0-pre.1` is upstream
+[`noamteyssier/paraseq`](https://github.com/noamteyssier/paraseq) at its
+`dev-0.5.0` branch (`6896e1d`), plus three commits implementing a resizable
+worker pool, offered upstream as
+[PR #75](https://github.com/noamteyssier/paraseq/pull/75).
+
+**Upstream's unreleased `dev-0.5.0` work** — everything between released 0.4.14
+and this crate, and the larger share of the difference:
+
+- a fix for a race between claiming a batch's position in the stream and the
+  reader's internal `fill` lock, which could attribute the wrong records to a
+  batch under high thread contention with small batch sizes;
+- paired and multi-file processing now return an error instead of silently
+  dropping trailing records when inputs have different lengths;
+- interleaved processing validates each batch's record count instead of
+  silently truncating a trailing partial record;
+- paired and multi-file processing no longer serialize every worker's reads
+  behind a single lock, restoring per-file decompression overlap;
+- `parallel::Ordered<P>` for opt-in output ordering, and a stable record index
+  on the `Record` trait.
+
+**The added change** (PR #75) — `parallel::ThreadPool`, a worker pool whose size
+can change while a job runs, with `set_threads`, `share(ways)` and
+`total_live()`, plus `*_pool` entry points on `Collection`. It exists so a
+scheduler can move threads between decompression and downstream work in
+response to measurement, rather than fixing the split before reading a byte.
+
+## Using it
+
+The library is still named `paraseq`, so aliasing the dependency means no source
+changes now and none when switching back:
+
+```toml
+[dependencies]
+paraseq = { package = "paraseq-temp", version = "0.5.0-pre.1" }
+```
+
+```toml
+# after upstream releases 0.5.0, this is the only edit required
+paraseq = "0.5"
+```
+
+## Versioning
+
+`0.5.0-pre.1` says what it is: a pre-release standing in for an eventual
+upstream 0.5.0. It deliberately does not occupy a plain `0.4.x` or `0.5.0`
+version, so it can never be mistaken for an upstream release.
+
+## Please report issues upstream
+
+Bugs belong at [noamteyssier/paraseq](https://github.com/noamteyssier/paraseq/issues)
+unless they are specific to the pool addition, which belongs on
+[PR #75](https://github.com/noamteyssier/paraseq/pull/75).
+
+---
+
+*Everything below is upstream's README, unchanged.*
+
 # paraseq
 
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE.md)

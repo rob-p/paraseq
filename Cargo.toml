@@ -1,14 +1,22 @@
 [package]
-name = "paraseq"
-version = "0.4.14"
+# TEMPORARY republication of upstream paraseq. Not a fork with independent
+# intent: see README.md. Depend on `paraseq` itself as soon as 0.5.0 ships.
+name = "paraseq-temp"
+version = "0.5.0-pre.1"
 edition = "2021"
-authors = ["Noam Teyssier"]
+authors = ["Noam Teyssier", "Rob Patro"]
 keywords = ["fasta", "fastq", "parser", "parallel", "paired"]
 license = "MIT"
-repository = "https://github.com/noamteyssier/paraseq"
-description = "A minimal-copy parser for FASTA and FASTQ files built for paired parallel processing."
+repository = "https://github.com/rob-p/paraseq"
+description = "Temporary republication of paraseq's unreleased dev-0.5.0 branch plus a resizable worker pool (noamteyssier/paraseq#75). Use `paraseq` instead once 0.5.0 is released; this crate will be yanked."
 readme = "README.md"
-documentation = "https://docs.rs/paraseq"
+documentation = "https://docs.rs/paraseq-temp"
+
+# Keep the crate importable as `paraseq`, so downstream code and the eventual
+# switch back to upstream need no source changes.
+[lib]
+name = "paraseq"
+path = "src/lib.rs"
 
 [dependencies]
 anyhow = { version = "1.0.95", optional = true }
@@ -39,4 +47,8 @@ gcs = ["dep:which"]
 [dev-dependencies]
 clap = { version = "4.5.40", features = ["derive"] }
 niffler = "3.0.0"
-paraseq = { path = ".", features = ["url", "htslib", "ssh", "gcs"] }
+paraseq-temp = { path = ".", features = ["url", "ssh", "gcs"] }
+
+[[example]]
+name = "htslib"
+required-features = ["htslib"]
