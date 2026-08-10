@@ -1,14 +1,23 @@
 [package]
-name = "paraseq"
-version = "0.5.0"
+# Republication of upstream paraseq. Not a fork with independent intent: it
+# exists only to unblock dependents that need features not yet merged upstream.
+# `paraseq` is the official crate; see README.md.
+name = "paraseq-temp"
+version = "0.5.0-pre.2"
 edition = "2021"
-authors = ["Noam Teyssier"]
+authors = ["Noam Teyssier", "Rob Patro"]
 keywords = ["fasta", "fastq", "parser", "parallel", "paired"]
 license = "MIT"
-repository = "https://github.com/noamteyssier/paraseq"
-description = "A minimal-copy parser for FASTA and FASTQ files built for paired parallel processing."
+repository = "https://github.com/rob-p/paraseq"
+description = "Republication of paraseq 0.5.0 plus a resizable worker pool (noamteyssier/paraseq#78), to unblock dependents needing the pool before it lands upstream. `paraseq` is the official crate; prefer it for everything the pool does not require."
 readme = "README.md"
-documentation = "https://docs.rs/paraseq"
+documentation = "https://docs.rs/paraseq-temp"
+
+# Keep the crate importable as `paraseq`, so downstream code and the eventual
+# switch back to upstream need no source changes.
+[lib]
+name = "paraseq"
+path = "src/lib.rs"
 
 [dependencies]
 anyhow = { version = "1.0.95", optional = true }

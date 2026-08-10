@@ -1,3 +1,98 @@
+# paraseq-temp
+
+> ## [`paraseq`](https://crates.io/crates/paraseq) is the official crate. You probably want that one.
+>
+> `paraseq-temp` exists for one reason: to let dependents rely on `paraseq`
+> features that are not yet merged upstream, through crates.io rather than a
+> `git` dependency, since a crate with a `git` dependency cannot itself be
+> published.
+>
+> **Prefer `paraseq` 0.5.0 once it is released.** We do not anticipate updating
+> this crate further unless another time-sensitive feature arrives before it
+> lands upstream.
+>
+> All credit for this code belongs to [Noam Teyssier](https://github.com/noamteyssier)
+> and the paraseq contributors. It is republished unmodified except for the
+> single addition described below, under the original MIT license.
+
+## What this contains
+
+`paraseq-temp 0.5.0-pre.2` is upstream
+[`noamteyssier/paraseq`](https://github.com/noamteyssier/paraseq) at its
+**released 0.5.0**, plus the commits implementing a resizable worker pool,
+offered upstream as
+[PR #78](https://github.com/noamteyssier/paraseq/pull/78) (the redesign of
+PR #75 following maintainer review: a fixed spawn set with parking, so the
+worker count is bounded by construction, and `RecordSet`s are allocated
+lazily and dropped on park).
+
+**Upstream's 0.5.0** — now released; summarized here because this crate
+carries it verbatim:
+
+- a fix for a race between claiming a batch's position in the stream and the
+  reader's internal `fill` lock, which could attribute the wrong records to a
+  batch under high thread contention with small batch sizes;
+- paired and multi-file processing now return an error instead of silently
+  dropping trailing records when inputs have different lengths;
+- interleaved processing validates each batch's record count instead of
+  silently truncating a trailing partial record;
+- paired and multi-file processing no longer serialize every worker's reads
+  behind a single lock, restoring per-file decompression overlap;
+- `parallel::Ordered<P>` for opt-in output ordering, and a stable record index
+  on the `Record` trait.
+
+**The added change** (PR #78) — `parallel::ThreadPool`, a worker pool whose size
+can change while a job runs, with `set_threads`, `share(ways)` and
+`total_live()`, plus `*_pool` entry points on `Collection`. It exists so a
+scheduler can move threads between decompression and downstream work in
+response to measurement, rather than fixing the split before reading a byte.
+
+## Packaging changes
+
+For completeness, this republication also differs from the upstream branch in
+three ways that are not source code:
+
+- the package is renamed to `paraseq-temp` while the library target stays
+  `paraseq`, so imports are unchanged;
+- a `LICENSE` file carrying upstream's MIT license and copyright was added — the
+  upstream README links to one that is not in the repository;
+- the `htslib` example is gated with `required-features` and dropped from the
+  self-referencing dev-dependency, so tests and packaging do not require a
+  bindgen-capable htslib toolchain (see
+  [noamteyssier/paraseq#76](https://github.com/noamteyssier/paraseq/issues/76)).
+
+## Using it
+
+The library is still named `paraseq`, so aliasing the dependency means no source
+changes now and none when switching back:
+
+```toml
+[dependencies]
+paraseq = { package = "paraseq-temp", version = "0.5.0-pre.2" }
+```
+
+```toml
+# after upstream releases 0.5.0, this is the only edit required
+paraseq = "0.5"
+```
+
+## Versioning
+
+`0.5.0-pre.1` says what it is: a pre-release standing in for an eventual
+upstream 0.5.0. It deliberately does not occupy a plain `0.4.x` or `0.5.0`
+version, so it can never be mistaken for an upstream release, and so a
+dependency on `paraseq` 0.5 will not silently resolve to it.
+
+## Please report issues upstream
+
+Bugs belong at [noamteyssier/paraseq](https://github.com/noamteyssier/paraseq/issues)
+unless they are specific to the pool addition, which belongs on
+[PR #75](https://github.com/noamteyssier/paraseq/pull/75).
+
+---
+
+*Everything below is upstream's README, unchanged.*
+
 # paraseq
 
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE.md)
