@@ -1,3 +1,75 @@
+# paraseq-temp
+
+> ## [`paraseq`](https://crates.io/crates/paraseq) is the official crate. You probably want that one.
+>
+> `paraseq-temp` exists for one reason: to let dependents rely on a `paraseq`
+> fix that is not yet released upstream, through crates.io rather than a `git`
+> dependency, since a crate with a `git` dependency cannot itself be published.
+>
+> Prefer `paraseq` once a release includes the fix below. We don't plan to
+> update this crate further unless another time-sensitive change arrives before
+> it lands upstream.
+>
+> All credit for this code belongs to [Noam Teyssier](https://github.com/noamteyssier)
+> and the paraseq contributors. It is republished unmodified except for the
+> single change described below, under the original MIT license.
+
+## What this contains
+
+`paraseq-temp 0.6.2-pre.1` is upstream
+[`noamteyssier/paraseq`](https://github.com/noamteyssier/paraseq) at its
+released 0.6.1, plus one commit fixing worker admission in
+`parallel::ThreadPool`, offered upstream as
+[PR #100](https://github.com/noamteyssier/paraseq/pull/100).
+
+In 0.6.1 a worker checks its index against the pool's target and counts itself
+live as two separate steps, and admits itself by index alone. So a supervisor
+that shrinks the pool, waits for `total_live()` to reach the new target and
+then hands the freed CPUs to something else can still be oversubscribed by one
+batch per affected worker. The fix admits workers under the pool's gate against
+both their index and the live count. The per-batch path is unchanged, and the
+fix adds two deterministic regression tests.
+
+## Packaging changes
+
+This republication also differs from upstream in two ways that are not source
+code:
+
+- the package is renamed to `paraseq-temp` while the library target stays
+  `paraseq`, so imports are unchanged;
+- a `LICENSE` file carrying upstream's MIT license and copyright is added.
+
+## Using it
+
+The library is still named `paraseq`, so aliasing the dependency means no
+source changes now and none when switching back:
+
+```toml
+[dependencies]
+paraseq = { package = "paraseq-temp", version = "=0.6.2-pre.1" }
+```
+
+```toml
+# once an upstream release includes PR #100, this is the only edit required
+paraseq = "0.6"
+```
+
+## Versioning
+
+`0.6.2-pre.1` is a pre-release standing in for the next upstream release. It
+doesn't take a plain `0.6.x` version, so it can't be mistaken for an upstream
+release, and a dependency on `paraseq` won't silently resolve to it.
+
+## Please report issues upstream
+
+Bugs belong at [noamteyssier/paraseq](https://github.com/noamteyssier/paraseq/issues),
+unless they are specific to the admission fix, which belongs on
+[PR #100](https://github.com/noamteyssier/paraseq/pull/100).
+
+---
+
+*Everything below is upstream's README, unchanged.*
+
 # paraseq
 
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE.md)
