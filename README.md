@@ -1,3 +1,81 @@
+# paraseq-temp
+
+> ## [`paraseq`](https://crates.io/crates/paraseq) is the official crate. You probably want that one.
+>
+> `paraseq-temp` exists for one reason: to let dependents rely on `paraseq`
+> fixes that are not yet released upstream, through crates.io rather than a
+> `git` dependency, since a crate with a `git` dependency cannot itself be
+> published.
+>
+> Prefer `paraseq` once a release includes the changes below. We don't plan to
+> update this crate further unless another time-sensitive change arrives before
+> they land upstream.
+>
+> All credit for this code belongs to [Noam Teyssier](https://github.com/noamteyssier)
+> and the paraseq contributors. It is republished unmodified except for the
+> changes described below, under the original MIT license.
+
+## What this contains
+
+`paraseq-temp 0.6.3-pre.1` is upstream
+[`noamteyssier/paraseq`](https://github.com/noamteyssier/paraseq) at its
+released 0.6.2 (which includes the worker-admission fix that 0.6.2-pre.1
+carried), plus two commits offered upstream:
+
+- **A truncated FASTQ is an error.** At the end of the input, one or two lines
+  of a record, or a header without its newline, were dropped without a word,
+  so a file or stream cut short at those points read as complete (a cut three
+  lines in already failed). Any non-whitespace bytes left after the last
+  complete record at the end of the input are now `Error::TruncatedRecord`.
+  Trailing blank lines are still accepted, as is a final record without its
+  newline. This lets a caller detect truncation without reading the input
+  twice, which a pipe does not allow.
+- **Format errors can name their input.** `set_source_name` on a reader (set
+  from the path by `ReaderBuilder::path`) makes its format errors
+  `Error::InInput`, displayed as `<name>: <error>`; `Error::root` gives the
+  error inside. For paired or multiple inputs this says which file is at
+  fault. Unnamed readers report errors as before.
+
+## Packaging changes
+
+This republication also differs from upstream in two ways that are not source
+code:
+
+- the package is renamed to `paraseq-temp` while the library target stays
+  `paraseq`, so imports are unchanged;
+- a `LICENSE` file carrying upstream's MIT license and copyright is added.
+
+## Using it
+
+The library is still named `paraseq`, so aliasing the dependency means no
+source changes now and none when switching back:
+
+```toml
+[dependencies]
+paraseq = { package = "paraseq-temp", version = "=0.6.2-pre.1" }
+```
+
+```toml
+# once an upstream release includes PR #100, this is the only edit required
+paraseq = "0.6"
+```
+
+## Versioning
+
+`0.6.2-pre.1` is a pre-release standing in for the next upstream release. It
+doesn't take a plain `0.6.x` version, so it can't be mistaken for an upstream
+release, and a dependency on `paraseq` won't silently resolve to it.
+
+## Please report issues upstream
+
+Bugs belong at [noamteyssier/paraseq](https://github.com/noamteyssier/paraseq/issues),
+unless they are specific to the admission fix, which belongs on
+[PR #100](https://github.com/noamteyssier/paraseq/pull/100).
+
+---
+
+*Everything below is upstream's README, unchanged.*
+
 # paraseq
 
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE.md)
