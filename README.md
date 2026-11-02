@@ -20,15 +20,18 @@
 `paraseq-temp 0.6.3-pre.1` is upstream
 [`noamteyssier/paraseq`](https://github.com/noamteyssier/paraseq) at its
 released 0.6.2 (which includes the worker-admission fix that 0.6.2-pre.1
-carried), plus two commits offered upstream:
+carried), plus two changes offered upstream:
 
 - **A truncated FASTQ is an error.** At the end of the input, one or two lines
   of a record, or a header without its newline, were dropped without a word,
   so a file or stream cut short at those points read as complete (a cut three
-  lines in already failed). Any non-whitespace bytes left after the last
-  complete record at the end of the input are now `Error::TruncatedRecord`.
-  Trailing blank lines are still accepted, as is a final record without its
-  newline. This lets a caller detect truncation without reading the input
+  lines in already failed, but only when the records were iterated). Now the
+  fill that reaches the end fails: any non-whitespace bytes left after the last
+  complete record are `Error::TruncatedRecord`, and a final record without its
+  newline is validated as it is formed. Trailing blank lines are still
+  accepted, as is a complete final record without its newline. Failing on that
+  fill means paired inputs read in lockstep report the cut, not a mismatch in
+  their numbers of records. This lets a caller detect truncation without reading the input
   twice, which a pipe does not allow.
 - **Format errors can name their input.** `set_source_name` on a reader (set
   from the path by `ReaderBuilder::path`) makes its format errors
